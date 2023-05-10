@@ -1,16 +1,13 @@
-use regex::Regex;
-use scraper::Html;
+extern crate core;
 
-struct Language {
-    value: String,
-    name: String,
-}
+use language::Language;
+use crate::translation_request::TranslationRequest;
+use crate::dict::dict::translate;
+use crate::dict::dict::get_language;
+use crate::helper::add;
 
-struct TranslationRequest {
-    from: Language,
-    to: Language,
-    value: String,
-}
+mod dict;
+
 
 fn main() {
     let input;
@@ -21,26 +18,8 @@ fn main() {
     if input.is_empty() {
         panic!("Cant translate without any input.");
     }
-
-    let _german = Language {
-        name: "Deutsch".to_string(),
-        value: "de".to_string(),
-    };
-
-    let _english = Language {
-        name: "Englisch".to_string(),
-        value: "en".to_string(),
-    };
-
-    let from_language = Language {
-        name: "".to_string(),
-        value: from,
-    };
-
-    let to_language = Language {
-        name: "".to_string(),
-        value: to,
-    };
+    let from_language = get_language(from);
+    let to_language = get_language(from);
 
     let result = get_translations(input, from_language, to_language);
 
@@ -65,51 +44,6 @@ fn get_input() -> (String, String, String) {
     (from.to_string(), to.to_string(), input.trim().to_string())
 }
 
-// returns html data from a given url
-fn scrape(url: &str) -> Html {
-    let response = reqwest::blocking::get(url).unwrap().text().unwrap();
-
-    scraper::Html::parse_document(&response)
-}
-
-fn filter(document: Html, left: &mut Vec<String>, right: &mut Vec<String>) {
-    let title_selector = scraper::Selector::parse("td.td7nl").unwrap();
-
-    let lines = document.select(&title_selector).map(|x| x.inner_html());
-    let re =
-        Regex::new(r"<[^>]*>|[^>]*</sup>|[0-9]*</div>|\{[^>]*\}|\[[^>]*\]|[^>]*</dfn>").unwrap();
-    let cleanup = Regex::new(r"[^>]*>|<[^>]*|&lt;[^>]*&gt;").unwrap();
-    lines.zip(1..1000).for_each(|(item, number)| {
-        // didn't wanna figure out why it doesn't work with one pass only so leaving
-        // it like this for now
-        let first_pass = re.replace_all(&item, "");
-        let second_pass = re.replace_all(first_pass.trim(), "");
-        let third_pass = cleanup.replace_all(second_pass.trim(), "");
-        let trimmed: String = (third_pass.trim()).to_string();
-        // translations in dict.cc in html are always from - to - from - to,
-        // so adding every other word to their respective category
-        if number % 2 == 0 {
-            add(right, trimmed);
-        } else {
-            add(left, trimmed);
-        }
-    });
-}
-
-fn get_translation_url(translation_request: TranslationRequest) -> String {
-    format!(
-        "https://{}-{}.dict.cc/?s={}",
-        translation_request.from.value, translation_request.to.value, translation_request.value
-    )
-}
-
-pub fn add(vec: &mut Vec<String>, word: String) {
-    let is_present = vec.iter().any(|w| *(w) == word);
-
-    if !is_present {
-        vec.push(word);
-    }
-}
 
 fn get_translations(input: String, from: Language, to: Language) -> Vec<String> {
     let words = process_translation_input(input);
@@ -136,14 +70,8 @@ fn generate_requests(words: Vec<String>, from: Language, to: Language) -> Vec<Tr
     let mut translation_requests: Vec<TranslationRequest> = vec![];
     for needed_translation in words {
         let translation_request = TranslationRequest {
-            from: Language {
-                value: from.value.clone(),
-                name: from.name.clone(),
-            },
-            to: Language {
-                value: to.value.clone(),
-                name: to.name.clone(),
-            },
+            from: from.clone(),
+            to: to.clone(),
             value: needed_translation.to_string(),
         };
         translation_requests.push(translation_request)
@@ -173,18 +101,4 @@ fn fetch_translations(list: Vec<TranslationRequest>) -> Vec<Vec<String>> {
         translations.push(translation_result);
     }
     translations
-}
-
-fn translate(translation_request: TranslationRequest) -> Vec<String> {
-    let url = get_translation_url(translation_request);
-
-    let document = scrape(&url);
-
-    let mut left: Vec<String> = Vec::new();
-    let mut right: Vec<String> = Vec::new();
-    filter(document, &mut left, &mut right);
-
-    // todo: add logic to decide which side needs to be returned based on layout of the table
-    // and predefined name in given Language struct(s)
-    right
 }
