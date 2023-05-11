@@ -1,5 +1,7 @@
-use crate::language::Language;
+use serde::{Deserialize, Serialize};
 
+use crate::language::Language;
+#[derive(Serialize, Deserialize)]
 pub struct TranslationRequest {
     value: String,
     from: Language,

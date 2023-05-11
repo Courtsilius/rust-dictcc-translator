@@ -1,10 +1,10 @@
 pub mod dict_mod {
     use crate::helper::add;
     use crate::language::Language;
+    use crate::translation::Translation;
     use crate::translation_request::TranslationRequest;
     use regex::Regex;
     use scraper::Html;
-    use crate::translation::Translation;
 
     pub fn get_language(s: String) -> Language {
         match s.as_str() {
@@ -37,8 +37,14 @@ pub mod dict_mod {
             lang_lines.push_str(&item);
         });
 
-        let v_f: Vec<_> = lang_lines.match_indices(translation_request.from().name()).map(|(i, _)|i).collect();
-        let v_t: Vec<_> = lang_lines.match_indices(translation_request.to().name()).map(|(i, _)|i).collect();
+        let v_f: Vec<_> = lang_lines
+            .match_indices(translation_request.from().name())
+            .map(|(i, _)| i)
+            .collect();
+        let v_t: Vec<_> = lang_lines
+            .match_indices(translation_request.to().name())
+            .map(|(i, _)| i)
+            .collect();
 
         let from_index = v_f.first().unwrap_or(&0);
         let to_index = v_t.first().unwrap_or(&0);
@@ -54,7 +60,6 @@ pub mod dict_mod {
         let re = Regex::new(r"<[^>]*>|[^>]*</sup>|[0-9]*</div>|\{[^>]*\}|\[[^>]*\]|[^>]*</dfn>")
             .unwrap();
         let cleanup = Regex::new(r"[^>]*>|<[^>]*|&lt;[^>]*&gt;").unwrap();
-
 
         let mut left: Vec<String> = Vec::new();
         let mut right: Vec<String> = Vec::new();
