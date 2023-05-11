@@ -1,4 +1,7 @@
-pub mod dict {
+pub mod dict_mod {
+    use crate::helper::add;
+    use crate::language::Language;
+    use crate::translation_request::TranslationRequest;
     use regex::Regex;
     use scraper::Html;
 
@@ -58,7 +61,9 @@ pub mod dict {
     fn get_translation_url(translation_request: TranslationRequest) -> String {
         format!(
             "https://{}-{}.dict.cc/?s={}",
-            translation_request.from.value, translation_request.to.value, translation_request.value
+            translation_request.from().value(),
+            translation_request.to().value(),
+            translation_request.value()
         )
     }
 }

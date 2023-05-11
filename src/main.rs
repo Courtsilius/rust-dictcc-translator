@@ -1,13 +1,12 @@
-extern crate core;
-
-use language::Language;
-use crate::translation_request::TranslationRequest;
-use crate::dict::dict::translate;
-use crate::dict::dict::get_language;
+use crate::dict::dict_mod::{get_language, translate};
 use crate::helper::add;
+use crate::language::Language;
+use crate::translation_request::TranslationRequest;
 
 mod dict;
-
+mod helper;
+mod language;
+mod translation_request;
 
 fn main() {
     let input;
@@ -19,7 +18,7 @@ fn main() {
         panic!("Cant translate without any input.");
     }
     let from_language = get_language(from);
-    let to_language = get_language(from);
+    let to_language = get_language(to);
 
     let result = get_translations(input, from_language, to_language);
 
@@ -43,7 +42,6 @@ fn get_input() -> (String, String, String) {
 
     (from.to_string(), to.to_string(), input.trim().to_string())
 }
-
 
 fn get_translations(input: String, from: Language, to: Language) -> Vec<String> {
     let words = process_translation_input(input);
@@ -69,11 +67,8 @@ fn process_translation_input(input: String) -> Vec<String> {
 fn generate_requests(words: Vec<String>, from: Language, to: Language) -> Vec<TranslationRequest> {
     let mut translation_requests: Vec<TranslationRequest> = vec![];
     for needed_translation in words {
-        let translation_request = TranslationRequest {
-            from: from.clone(),
-            to: to.clone(),
-            value: needed_translation.to_string(),
-        };
+        let translation_request =
+            TranslationRequest::new(needed_translation.to_string(), from.clone(), to.clone());
         translation_requests.push(translation_request)
     }
     translation_requests

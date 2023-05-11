@@ -1,3 +1,5 @@
+use crate::language::Language;
+
 pub struct TranslationRequest {
     value: String,
     from: Language,
@@ -5,19 +7,23 @@ pub struct TranslationRequest {
 }
 
 impl TranslationRequest {
-    pub fn value(&self) -> String {
-        self.value
+    pub fn value(&self) -> &String {
+        &self.value
     }
 
-    pub fn from(&self) -> Language {
-        self.from
+    pub fn from(&self) -> &Language {
+        &self.from
     }
 
-    pub fn to(&self) -> Language {
-        self.to
+    pub fn to(&self) -> &Language {
+        &self.to
     }
 
     pub fn new(v: String, f: Language, t: Language) -> TranslationRequest {
-        TranslationRequest { value: v, from: f, to: t}
+        TranslationRequest {
+            value: v,
+            from: f,
+            to: t,
+        }
     }
 }
