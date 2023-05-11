@@ -40,8 +40,8 @@ pub mod dict_mod {
         let v_f: Vec<_> = lang_lines.match_indices(translation_request.from().name()).map(|(i, _)|i).collect();
         let v_t: Vec<_> = lang_lines.match_indices(translation_request.to().name()).map(|(i, _)|i).collect();
 
-        let from_index = v_f.first().unwrap();
-        let to_index = v_t.first().unwrap();
+        let from_index = v_f.first().unwrap_or(&0);
+        let to_index = v_t.first().unwrap_or(&0);
 
         let mut from_is_first: bool = true;
         if to_index < from_index {
@@ -74,8 +74,8 @@ pub mod dict_mod {
         });
 
         match from_is_first {
-            true => Translation::new(translation_request, left),
-            false => Translation::new(translation_request, right),
+            true => Translation::new(translation_request, right),
+            false => Translation::new(translation_request, left),
         }
     }
 
