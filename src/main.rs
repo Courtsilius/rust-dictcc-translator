@@ -1,12 +1,14 @@
 use crate::dict::dict_mod::{get_language, translate};
 use crate::helper::add;
 use crate::language::Language;
+use crate::translation::Translation;
 use crate::translation_request::TranslationRequest;
 
 mod dict;
 mod helper;
 mod language;
 mod translation_request;
+mod translation;
 
 fn main() {
     let input;
@@ -17,6 +19,7 @@ fn main() {
     if input.is_empty() {
         panic!("Cant translate without any input.");
     }
+
     let from_language = get_language(from);
     let to_language = get_language(to);
 
@@ -49,7 +52,7 @@ fn get_translations(input: String, from: Language, to: Language) -> Vec<String> 
 
     let mut all: Vec<String> = vec![];
     for translation in translated {
-        combine(translation.clone(), &mut all);
+        combine(translation.result().clone(), &mut all);
     }
     // sorting results by length
     all.sort_by_key(|b| std::cmp::Reverse(b.len()));
@@ -88,12 +91,11 @@ fn combine(a: Vec<String>, c: &mut Vec<String>) {
     }
 }
 
-fn fetch_translations(list: Vec<TranslationRequest>) -> Vec<Vec<String>> {
-    let mut translations: Vec<Vec<String>> = vec![];
+fn fetch_translations(list: Vec<TranslationRequest>) -> Vec<Translation> {
+    let mut translations: Vec<Translation> = vec![];
 
     for request in list {
-        let translation_result: Vec<String> = translate(request);
-        translations.push(translation_result);
+        translations.push(translate(request));
     }
     translations
 }
