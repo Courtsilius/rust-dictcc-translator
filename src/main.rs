@@ -1,6 +1,7 @@
 use crate::dict::dict_mod::{get_language, translate};
 use crate::helper::{add, combine};
-use crate::input::get_input;
+use crate::input::{get_input, handle_input};
+use crate::input_resolver::InputResolver;
 use crate::language::Language;
 use crate::translation::Translation;
 use crate::translation_request::TranslationRequest;
@@ -11,12 +12,30 @@ mod input;
 mod language;
 mod translation;
 mod translation_request;
+mod input_resolver;
 
 fn main() {
+
+    let i = handle_input();
+
+    match i.status() {
+        0 => wrapup(i),
+        1 => cont(i),
+        _ => {}
+    }
+}
+
+fn wrapup(i: InputResolver) {
+    let message = i.value().first();
+    println!("{}", message.unwrap());
+}
+
+fn cont(i: InputResolver) {
     let input;
     let from;
     let to;
-    (from, to, input) = get_input();
+
+    (from, to, input) = get_input(i.value());
 
     let from_language = get_language(from);
     let to_language = get_language(to);
