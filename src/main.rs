@@ -9,13 +9,12 @@ use crate::translation_request::TranslationRequest;
 mod dict;
 mod helper;
 mod input;
+mod input_resolver;
 mod language;
 mod translation;
 mod translation_request;
-mod input_resolver;
 
 fn main() {
-
     let i = handle_input();
 
     match i.status() {

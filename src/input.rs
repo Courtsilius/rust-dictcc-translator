@@ -1,7 +1,6 @@
 use crate::input_resolver::InputResolver;
 
 pub fn get_input(v_input: &Vec<String>) -> (String, String, String) {
-
     let from = v_input.get(1).unwrap();
     let to = v_input.get(2).unwrap();
 
@@ -23,7 +22,7 @@ pub fn handle_input() -> InputResolver {
 
     match &args.first().unwrap()[..2] {
         "--" => help(args.first()),
-        _ => resolve(args)
+        _ => resolve(args),
     }
 }
 
@@ -39,6 +38,6 @@ fn help(cmd: Option<&String>) -> InputResolver {
     let help: Vec<String> = vec!["Hilfetext".to_string()];
     match cmd.unwrap().to_string() {
         //"--help" => InputResolver::new(help, 0),
-        _ => InputResolver::new(help, 0)
+        _ => InputResolver::new(help, 0),
     }
 }

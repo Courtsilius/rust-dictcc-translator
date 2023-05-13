@@ -1,6 +1,6 @@
 pub struct InputResolver {
     value: Vec<String>,
-    status: i32
+    status: i32,
 }
 
 impl InputResolver {
