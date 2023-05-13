@@ -78,10 +78,10 @@ pub mod dict_mod {
             }
         });
 
-        Translation::new(
-            translation_request,
-            if from_is_first { right } else { left },
-        )
+        match from_is_first {
+            true => Translation::new(translation_request, right),
+            false => Translation::new(translation_request, left),
+        }
     }
 
     fn get_translation_url(translation_request: &TranslationRequest) -> String {
