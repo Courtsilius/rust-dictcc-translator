@@ -1,47 +1,42 @@
+use clap::Parser;
+
 use crate::dict::dict_mod::{get_language, translate};
 use crate::helper::{add, combine};
-use crate::input::{get_input, handle_input};
-use crate::input_resolver::InputResolver;
 use crate::language::Language;
 use crate::translation::Translation;
 use crate::translation_request::TranslationRequest;
 
 mod dict;
 mod helper;
-mod input;
-mod input_resolver;
 mod language;
 mod translation;
 mod translation_request;
 
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    #[arg(short, long)]
+    from: String,
+
+    #[arg(short, long)]
+    to: String,
+
+    #[clap(long, short, action)]
+    input: String,
+}
+
 fn main() {
-    let i = handle_input();
-
-    match i.status() {
-        0 => wrapup(i),
-        1 => cont(i),
-        _ => {}
-    }
+    let args = Args::parse();
+    println!("F: {}, T: {}, I: {}", args.from, args.to, args.input);
+    cont(args);
 }
 
-fn wrapup(i: InputResolver) {
-    let message = i.value().first();
-    println!("{}", message.unwrap());
-}
+fn cont(args: Args) {
+    let from_language = get_language(args.from);
+    let to_language = get_language(args.to);
 
-fn cont(i: InputResolver) {
-    let input;
-    let from;
-    let to;
+    let result = get_translations(args.input, from_language, to_language);
 
-    (from, to, input) = get_input(i.value());
-
-    let from_language = get_language(from);
-    let to_language = get_language(to);
-
-    let result = get_translations(input, from_language, to_language);
-
-    //println!("{{\"values:\" {} }}", json::stringify(result));
     let res_string = serde_json::to_string(&result).unwrap();
     println!("{}", res_string);
 }
