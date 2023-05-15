@@ -14,19 +14,22 @@ pub mod dict_mod {
         }
     }
 
-    pub fn translate(translation_request: TranslationRequest) -> Translation {
+    pub async fn translate(translation_request: TranslationRequest) -> Translation {
         let url = get_translation_url(&translation_request);
 
-        let document = scrape(&url);
+        let document = scrape(url);
 
-        filter(document, translation_request)
+        filter(document.await, translation_request)
     }
 
     // returns html data from a given url
-    fn scrape(url: &str) -> Html {
-        let response = reqwest::blocking::get(url).unwrap().text().unwrap();
+    async fn scrape(url: String) -> Html {
+        let response = tokio::task::spawn_blocking(move | |{
+            reqwest::blocking::get(url).unwrap().text().unwrap()
+        });
+        let response = &response.await.unwrap();
 
-        scraper::Html::parse_document(&response)
+        scraper::Html::parse_document(response)
     }
 
     fn filter(document: Html, translation_request: TranslationRequest) -> Translation {

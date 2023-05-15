@@ -1,4 +1,5 @@
 use clap::Parser;
+use tokio;
 
 use crate::dict::dict_mod::{get_language, translate};
 use crate::helper::{add, combine};
@@ -24,26 +25,26 @@ struct Args {
     #[clap(long, short, action)]
     input: String,
 }
-
-fn main() {
+#[tokio::main]
+async fn main() {
     let args = Args::parse();
     println!("F: {}, T: {}, I: {}", args.from, args.to, args.input);
-    cont(args);
+    cont(args).await;
 }
 
-fn cont(args: Args) {
+async fn cont(args: Args) {
     let from_language = get_language(args.from);
     let to_language = get_language(args.to);
 
-    let result = get_translations(args.input, from_language, to_language);
+    let result = get_translations(args.input, from_language, to_language).await;
 
     let res_string = serde_json::to_string(&result).unwrap();
     println!("{}", res_string);
 }
 
-fn get_translations(input: String, from: Language, to: Language) -> Translation {
+async fn get_translations(input: String, from: Language, to: Language) -> Translation {
     let words = process_translation_input(input.clone());
-    let translated = fetch_translations(generate_requests(words, from.clone(), to.clone()));
+    let translated = fetch_translations(generate_requests(words, from.clone(), to.clone())).await;
 
     let mut all: Vec<String> = vec![];
     for translation in translated {
@@ -64,13 +65,12 @@ fn generate_requests(words: Vec<String>, from: Language, to: Language) -> Vec<Tr
     translation_requests
 }
 
-fn fetch_translations(list: Vec<TranslationRequest>) -> Vec<Translation> {
-    let mut translations: Vec<Translation> = vec![];
-
+async fn fetch_translations(list: Vec<TranslationRequest>) -> Vec<Translation> {
+    let mut tokio_spawns = Vec::new();
     for request in list {
-        translations.push(translate(request));
+        tokio_spawns.push(translate(request));
     }
-    translations
+    futures::future::join_all(tokio_spawns).await
 }
 
 pub fn process_translation_input(input: String) -> Vec<String> {
