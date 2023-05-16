@@ -1,5 +1,4 @@
 use clap::Parser;
-use tokio;
 
 use crate::dict::dict_mod::{get_language, translate};
 use crate::helper::{add, combine};
