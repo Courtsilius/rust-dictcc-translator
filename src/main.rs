@@ -23,6 +23,9 @@ struct Args {
 
     #[clap(long, short, action)]
     input: String,
+
+    #[arg(short, long, default_value_t=100)]
+    max: usize
 }
 #[tokio::main]
 async fn main() {
@@ -35,13 +38,13 @@ async fn cont(args: Args) {
     let from_language = get_language(args.from);
     let to_language = get_language(args.to);
 
-    let result = get_translations(args.input, from_language, to_language).await;
+    let result = get_translations(args.input, from_language, to_language, args.max).await;
 
     let res_string = serde_json::to_string(&result).unwrap();
     println!("{}", res_string);
 }
 
-async fn get_translations(input: String, from: Language, to: Language) -> Translation {
+async fn get_translations(input: String, from: Language, to: Language, max: usize) -> Translation {
     let words = process_translation_input(input.clone());
     let translated = fetch_translations(generate_requests(words, from.clone(), to.clone())).await;
 
@@ -51,7 +54,7 @@ async fn get_translations(input: String, from: Language, to: Language) -> Transl
     }
     // sorting results by length
     all.sort_by_key(|b| std::cmp::Reverse(b.len()));
-    Translation::new(TranslationRequest::new(input, from, to), all)
+    Translation::new(TranslationRequest::new(input, from, to), all[0..max].to_vec())
 }
 
 fn generate_requests(words: Vec<String>, from: Language, to: Language) -> Vec<TranslationRequest> {
