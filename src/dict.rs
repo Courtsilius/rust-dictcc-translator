@@ -24,7 +24,7 @@ pub mod dict_mod {
 
     // returns html data from a given url
     async fn scrape(url: String) -> Html {
-        let response = tokio::task::spawn_blocking(move | |{
+        let response = tokio::task::spawn_blocking(move || {
             reqwest::blocking::get(url).unwrap().text().unwrap()
         });
         let response = &response.await.unwrap();
