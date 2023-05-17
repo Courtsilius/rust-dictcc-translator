@@ -30,7 +30,6 @@ struct Args {
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
-    println!("F: {}, T: {}, I: {}", args.from, args.to, args.input);
     cont(args).await;
 }
 
@@ -52,11 +51,12 @@ async fn get_translations(input: String, from: Language, to: Language, max: usiz
     for translation in translated {
         combine(translation.result().clone(), &mut all);
     }
+    let max_items = if all.len() < max { all.len() } else { max };
     // sorting results by length
     all.sort_by_key(|b| std::cmp::Reverse(b.len()));
     Translation::new(
         TranslationRequest::new(input, from, to),
-        all[0..max].to_vec(),
+        all[0..max_items].to_vec(),
     )
 }
 
