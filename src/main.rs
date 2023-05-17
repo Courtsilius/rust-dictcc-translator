@@ -24,8 +24,8 @@ struct Args {
     #[clap(long, short, action)]
     input: String,
 
-    #[arg(short, long, default_value_t=100)]
-    max: usize
+    #[arg(short, long, default_value_t = 100)]
+    max: usize,
 }
 #[tokio::main]
 async fn main() {
@@ -54,7 +54,10 @@ async fn get_translations(input: String, from: Language, to: Language, max: usiz
     }
     // sorting results by length
     all.sort_by_key(|b| std::cmp::Reverse(b.len()));
-    Translation::new(TranslationRequest::new(input, from, to), all[0..max].to_vec())
+    Translation::new(
+        TranslationRequest::new(input, from, to),
+        all[0..max].to_vec(),
+    )
 }
 
 fn generate_requests(words: Vec<String>, from: Language, to: Language) -> Vec<TranslationRequest> {
