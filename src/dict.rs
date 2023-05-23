@@ -18,6 +18,7 @@ pub mod dict_mod {
                 "Deutsch".to_string(),
                 "German".to_string(),
             ),
+            // TODO: figure out a way to catch this panic
             _ => panic!("No valid language found."),
         }
     }
@@ -87,7 +88,7 @@ pub mod dict_mod {
         let mut index = 0;
         let mut regex = vec![
             r"Andere.*tr([1-9][0-9][0-9]|[1-9][0-9]|[0-9])",
-            r"Others.*tr([1-9][0-9][0-9]|[1-9][0-9]|[0-9])",
+            r"Others.*tr([1-9][0-9][0-9]|[1-9][0-9]|[0-9])", // TODO: more splits
         ];
         while index == 0 && !regex.is_empty() {
             let re = Regex::new(regex[0]).unwrap();

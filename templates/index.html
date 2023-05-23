@@ -7,7 +7,10 @@
             <label for="input">Input</label>
             <input type="text" name="input" id="input" value="{{ input }}" required/>
         </div>
-
+        <select id="from_to" name="from_to" value="{{ from_to }}">
+            <option value="en-de">En -> De</option>
+            <option value="de-en">De -> En</option>
+        </select>
         <button type="submit">Submit</button>
     </form>
 </ul>
