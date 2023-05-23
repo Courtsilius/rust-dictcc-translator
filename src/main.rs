@@ -4,9 +4,6 @@ use axum::{
 };
 use clap::Parser;
 
-use crate::dict::dict_mod::get_language;
-use crate::stupisaurus::stupisaurus_mod::stupi_translate;
-
 mod dict;
 mod helper;
 mod language;
@@ -44,15 +41,4 @@ async fn main() {
         .serve(router.into_make_service())
         .await
         .unwrap();
-
-    return;
-
-    let args = Args::parse();
-    let from_language = get_language(args.from);
-    let to_language = get_language(args.to);
-
-    let result = stupi_translate(args.input, from_language, to_language, args.max).await;
-
-    let res_string = serde_json::to_string(&result).unwrap();
-    println!("{}", res_string);
 }
