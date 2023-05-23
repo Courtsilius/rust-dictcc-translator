@@ -15,23 +15,16 @@ mod web;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short, long)]
-    from: String,
-
-    #[arg(short, long)]
-    to: String,
-
-    #[clap(long, short, action)]
-    input: String,
-
-    #[arg(short, long, default_value_t = 100)]
-    max: usize,
+    #[arg(short, long, default_value_t = {"127.0.0.1:8123".to_string()})]
+    socket: String,
 }
 
 #[tokio::main]
 async fn main() {
+    let args = Args::parse();
     println!("Starting webserver");
-    let addr = "127.0.0.1:8123".parse().unwrap();
+
+    let addr = args.socket.parse().unwrap();
 
     let router = Router::new()
         .route("/", get(web::index))
