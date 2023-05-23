@@ -17,9 +17,6 @@
         <button type="submit">Submit</button>
     </form>
 </ul>
-{% if !from_to.is_empty() -%}
-    <p> Translating from {{ from }} to {{ to }}</p>
-{% endif %}
 <ul>
     {% for item in translation.result() %}
     <li>{{ item }} </li>

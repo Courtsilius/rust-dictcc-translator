@@ -13,8 +13,6 @@ use crate::translation_request::TranslationRequest;
 pub struct IndexTemplate {
     input: String,
     from_to: String,
-    from: String,
-    to: String,
     translation: Translation,
 }
 
@@ -28,8 +26,6 @@ pub async fn index() -> impl IntoResponse {
     let template = IndexTemplate {
         input: "".to_string(),
         from_to: "".to_string(),
-        from: "".to_string(),
-        to: "".to_string(),
         translation: Translation::new(
             TranslationRequest::new(
                 "".to_string(),
@@ -52,8 +48,8 @@ pub async fn input(Form(form): Form<FormFields>) -> impl IntoResponse {
     let to_language = get_language(languages.get(1).unwrap_or(&"de".to_string()).to_owned());
     let result = stupi_translate(
         form.input.clone(),
-        from_language.clone(),
-        to_language.clone(),
+        from_language,
+        to_language,
         50,
     )
     .await;
@@ -62,8 +58,6 @@ pub async fn input(Form(form): Form<FormFields>) -> impl IntoResponse {
         input: form.input,
         translation: result,
         from_to: form.from_to,
-        from: from_language.name().to_owned(),
-        to: to_language.name().to_owned(),
     };
     render_template(template)
 }
