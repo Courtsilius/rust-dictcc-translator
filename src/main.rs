@@ -28,8 +28,9 @@ async fn main() {
 
     let router = Router::new()
         .route("/", get(web::index))
-        .route("/", post(web::input));
-
+        .route("/", post(web::input))
+        .route("/beta", get(web::beta))
+        .route("/beta", post(web::beta_input));
     Server::bind(&addr)
         .serve(router.into_make_service())
         .await
