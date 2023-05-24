@@ -15,7 +15,7 @@ mod web;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short, long, default_value_t = {"127.0.0.1:8123".to_string()})]
+    #[arg(short, long, default_value_t = {"0.0.0.0:8000".to_string()})]
     socket: String,
 }
 
