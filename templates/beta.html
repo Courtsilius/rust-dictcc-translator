@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <style>
+	/* The container */
+	.container {
+	  display: block;
+	  position: relative;
+	  padding-left: 35px;
+	  margin-bottom: 12px;
+	  cursor: pointer;
+	  font-size: 13;
+	  -webkit-user-select: none;
+	  -moz-user-select: none;
+	  -ms-user-select: none;
+	  user-select: none;
+	}
+
+	/* Hide the browser's default checkbox */
+	.container input {
+	  position: absolute;
+	  opacity: 0;
+	  cursor: pointer;
+	  height: 0;
+	  width: 0;
+	}
+
+	/* Create a custom checkbox */
+	.checkmark {
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  height: 25px;
+	  width: 25px;
+	  background-color: #eee;
+	}
+
+	/* On mouse-over, add a grey background color */
+	.container:hover input ~ .checkmark {
+	  background-color: #ccc;
+	}
+
+	/* When the checkbox is checked, add a blue background */
+	.container input:checked ~ .checkmark {
+	  background-color: #2196F3;
+	}
+
+	/* Create the checkmark/indicator (hidden when not checked) */
+	.checkmark:after {
+	  content: "";
+	  position: absolute;
+	  display: none;
+	}
+
+	/* Show the checkmark when checked */
+	.container input:checked ~ .checkmark:after {
+	  display: block;
+	}
+
+	/* Style the checkmark/indicator */
+	.container .checkmark:after {
+	  left: 9px;
+	  top: 5px;
+	  width: 5px;
+	  height: 10px;
+	  border: solid white;
+	  border-width: 0 3px 3px 0;
+	  -webkit-transform: rotate(45deg);
+	  -ms-transform: rotate(45deg);
+	  transform: rotate(45deg);
+	}
+	.wrapper {
+		float:left;
+		width:10%;
+	}
+
+	.result {
+		width: 100%;
+		float:left;
+		font-size: 24px;
+	}
+</style>
+</head>
+<body>
+<ul>
+    <h1>Stupisaurus Beta</h1>
+    <a href="/">Click here to get back to the main site.</a>
+    <form action="/beta" method="post">
+        <div>
+            <label for="input">Input</label>
+            <input type="text" name="input" id="input" value="{{ input }}" required/>
+        </div>
+        {% let selected = "selected" %}
+        {% let ende = "en-de" %}
+        {% let deen = "de-en" %}
+        <select id="from_to" name="from_to" value="{{ from_to }}">
+            <option value="en-de" {% if from_to == ende -%} {{ selected }} {% endif %}>En -> De</option>
+            <option value="de-en" {% if from_to == deen -%} {{ selected }} {% endif %}>De -> En</option>
+        </select>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="all_translations_container"></div>
+    <br>
+    <div class="result" id="list_container"></div>
+</ul>
+<ul>
+
+</ul>
+</body>
+<script>
+    function combine(array1, array2) {
+		let result = [];
+
+		if (array1 === undefined || array1.length == 0) {
+			result = array2;
+		} else if (array2 === undefined || array2.length == 0) {
+			result = array1;
+		} else {
+			array1.forEach(translation1 => {
+				array2.forEach(translation2 => {
+					result.push(translation1 + " " + translation2);
+				});
+			});
+		}
+
+		return result;
+	}
+
+	function update_ui(list) {
+		list_container.innerHTML = "";
+
+		list.forEach(word => {
+			list_container.innerHTML += generate_list_entry(word);
+		});
+
+	}
+
+	function update_translations() {
+		let final_list= [];
+
+		let new_all_translations = [];
+		count = 0;
+		selected.forEach(translation => {
+			new_all_translations[count] = [];
+			translation.forEach(word_index => {
+				new_all_translations[count].push(all_translations[count][word_index]);
+			});
+			count++;
+		});
+		new_all_translations.forEach(translation => {
+			final_list = combine(final_list, translation)
+		});
+		update_ui(final_list);
+	}
+	function generate_container(id) {
+		return `<div class="wrapper"><div id="translations${id}"></div></div>`;
+	}
+
+	function remove_element(translation, idx) {
+	let val = Number(idx);
+		let arr = selected[translation];
+		const index = arr.indexOf(val);
+		if (index > -1) { // only splice array when item is found
+		  arr.splice(index, 1); // 2nd parameter means remove one item only
+		}
+	}
+
+	function add_element(translation, idx) {
+		let arr = selected[translation];
+		let val = Number(idx);
+		const index = arr.indexOf(val);
+		if (index == -1) { // only add to array when item is not found
+		  arr.push(val); // 2nd parameter means remove one item only
+		}
+	}
+
+	function update_selection(elem) {
+		if (elem.checked) {
+			add_element(elem.getAttribute('translation'), elem.getAttribute('index'));
+		} else {
+			remove_element(elem.getAttribute('translation'), elem.getAttribute('index'));
+		}
+		update_translations();
+	}
+
+	function generate_checkbox(id, count, index) {
+		return `<label class="container" id="${count}-${id}">${id}` +
+				`<input type="checkbox" value="${count}-${id}" index="${index}" translation="${count}" onclick="update_selection(this)">` +
+				`<span class="checkmark">` +
+				`</span>` +
+			`</label>`;
+	}
+
+	function generate_list_entry(word) {
+		return `${word}<br>`;
+	}
+
+	let all_translations = [
+	    {% for item in translation %}
+	    [
+            {% for word in item.result() %}
+                "{{ word }}",
+            {% endfor %}
+        ],
+        {% endfor %}
+	];
+
+	let all_container = document.getElementById("all_translations_container");
+	let list_container = document.getElementById("list_container");
+
+	let count = 0;
+	let selected = [];
+	all_translations.forEach(translation => {
+		selected[count] = [];
+		let index = 0;
+		all_container.innerHTML += generate_container(count);
+		let container = document.getElementById("translations"+count);
+		translation.forEach(word => {
+		    if(index==15) { return; }
+			container.innerHTML += generate_checkbox(word, count, index);
+			index++;
+			});
+		count++;
+	});
+</script>
+</html>

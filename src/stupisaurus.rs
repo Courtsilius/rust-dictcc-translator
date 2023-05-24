@@ -27,6 +27,15 @@ pub mod stupisaurus_mod {
         )
     }
 
+    pub async fn stupi_translate_beta(
+        input: String,
+        from: Language,
+        to: Language,
+    ) -> Vec<Translation> {
+        let words = process_translation_input(input.clone());
+        fetch_translations(generate_requests(words, from.clone(), to.clone())).await
+    }
+
     fn generate_requests(
         words: Vec<String>,
         from: Language,

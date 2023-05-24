@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<body>
+<ul>
+    <h1>Stupisaurus</h1>
+    <a href="/beta">Click here to get to the beta.</a>
+    <form action="/" method="post">
+        <div>
+            <label for="input">Input</label>
+            <input type="text" name="input" id="input" value="{{ input }}" required/>
+        </div>
+        {% let selected = "selected" %}
+        {% let ende = "en-de" %}
+        {% let deen = "de-en" %}
+        <select id="from_to" name="from_to" value="{{ from_to }}">
+            <option value="en-de" {% if from_to == ende -%} {{ selected }} {% endif %}>En -> De</option>
+            <option value="de-en" {% if from_to == deen -%} {{ selected }} {% endif %}>De -> En</option>
+        </select>
+        <button type="submit">Submit</button>
+    </form>
+</ul>
+<ul>
+    {% for item in translation.result() %}
+    <li>{{ item }} </li>
+    {% endfor %}
+</ul>
+</body>
+</html>
