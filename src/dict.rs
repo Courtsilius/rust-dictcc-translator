@@ -79,9 +79,9 @@ pub mod dict_mod {
         let mut index = reg_match(document_string);
         // if no other words are found we don't want to return too many translations, 6 seems like an OK amount
         if index == 0 {
-            index = 6
+            index = 5
         }
-        index
+        index + 1
     }
 
     fn reg_match(lang_lines: String) -> i32 {
@@ -89,6 +89,8 @@ pub mod dict_mod {
         let mut regex = vec![
             r"Andere.*tr([1-9][0-9][0-9]|[1-9][0-9]|[0-9])",
             r"Others.*tr([1-9][0-9][0-9]|[1-9][0-9]|[0-9])", // TODO: more splits
+            r"Words.*tr([1-9][0-9][0-9]|[1-9][0-9]|[0-9])",
+            r"Wörter.*tr([1-9][0-9][0-9]|[1-9][0-9]|[0-9])",
         ];
         while index == 0 && !regex.is_empty() {
             let re = Regex::new(regex[0]).unwrap();
